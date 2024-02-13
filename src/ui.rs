@@ -1,11 +1,20 @@
 use bevy::prelude::*;
 
+use crate::GameState;
+
 pub struct UiPlugin;
 
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup_ui)
+        app.add_systems(OnEnter(GameState::Menu), setup_ui)
+            .add_systems(OnExit(GameState::Menu), cleanup_ui)
             .add_systems(Update, handle_button_press);
+    }
+}
+
+fn cleanup_ui(mut commands: Commands, query: Query<Entity, With<Node>>) {
+    for entity in &query {
+        commands.entity(entity).despawn();
     }
 }
 
@@ -51,11 +60,12 @@ fn setup_ui(mut commands: Commands) {
 
 fn handle_button_press(
     interaction_query: Query<&Interaction, (Changed<Interaction>, With<Button>)>,
+    mut next_state: ResMut<NextState<GameState>>,
 ) {
     for interaction in &interaction_query {
         match *interaction {
             Interaction::Pressed => {
-                println!("Button was clicked!");
+                next_state.0 = Some(GameState::InGame);
             }
             _ => {}
         }

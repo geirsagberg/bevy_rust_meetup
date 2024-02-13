@@ -1,3 +1,4 @@
+#![allow(unused_parens)]
 use bevy::prelude::*;
 
 use camera::CameraPlugin;
@@ -13,7 +14,6 @@ pub struct MainPlugin;
 impl Plugin for MainPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins((CameraPlugin, GamePlugin, UiPlugin));
-
         app.add_state::<GameState>();
     }
 }

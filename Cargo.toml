@@ -9,4 +9,4 @@ edition = "2021"
 # opt-level = 1
 
 [dependencies]
-bevy = "0.12.1"
+bevy = { version = "0.12.1", features = ["dynamic_linking"] }
