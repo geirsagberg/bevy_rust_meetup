@@ -4,6 +4,7 @@ use bevy::prelude::*;
 mod assets;
 mod background;
 mod camera;
+mod demo;
 mod game;
 mod game_over;
 mod inspector;
@@ -18,14 +19,15 @@ impl Plugin for MainPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins((
             camera::CameraPlugin,
-            game::GamePlugin,
-            ui::UiPlugin,
-            score::ScorePlugin,
-            game_over::GameOverPlugin,
-            assets::LoadingPlugin,
-            music::MusicPlugin,
-            background::BackgroundPlugin,
-            inspector::InspectorPlugin,
+            demo::DemoPlugin,
+            // game::GamePlugin,
+            // ui::UiPlugin,
+            // score::ScorePlugin,
+            // game_over::GameOverPlugin,
+            // assets::LoadingPlugin,
+            // background::BackgroundPlugin,
+            // music::MusicPlugin,
+            // inspector::InspectorPlugin,
         ))
         .add_state::<GameState>()
         .add_event::<ResetEvent>()
