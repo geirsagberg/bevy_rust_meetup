@@ -6,6 +6,7 @@ mod background;
 mod camera;
 mod game;
 mod game_over;
+mod inspector;
 mod materials;
 mod music;
 mod score;
@@ -24,6 +25,7 @@ impl Plugin for MainPlugin {
             assets::LoadingPlugin,
             music::MusicPlugin,
             background::BackgroundPlugin,
+            inspector::InspectorPlugin,
         ))
         .add_state::<GameState>()
         .add_event::<ResetEvent>()
