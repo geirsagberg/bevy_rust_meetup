@@ -2,6 +2,8 @@
 
 This repo contains some sample code and resources for Bevy. Have fun!
 
+[Slides from the meetup](https://docs.google.com/presentation/d/1U2Hu44rKaId63R87C1zBP7tC3ogmthnWAMAqW19H1P0/edit?usp=sharing)
+
 ## Sample code
 
 To run, make sure you have the latest Rust version, e.g. by using `rustup`:
