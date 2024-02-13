@@ -1,15 +1,13 @@
 #![allow(unused_parens)]
 use bevy::prelude::*;
 
-use camera::CameraPlugin;
-use game::GamePlugin;
-use game_over::GameOverPlugin;
-use score::ScorePlugin;
-use ui::UiPlugin;
-
+mod assets;
+mod background;
 mod camera;
 mod game;
 mod game_over;
+mod materials;
+mod music;
 mod score;
 mod ui;
 
@@ -18,11 +16,14 @@ pub struct MainPlugin;
 impl Plugin for MainPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins((
-            CameraPlugin,
-            GamePlugin,
-            UiPlugin,
-            ScorePlugin,
-            GameOverPlugin,
+            camera::CameraPlugin,
+            game::GamePlugin,
+            ui::UiPlugin,
+            score::ScorePlugin,
+            game_over::GameOverPlugin,
+            assets::LoadingPlugin,
+            music::MusicPlugin,
+            background::BackgroundPlugin,
         ))
         .add_state::<GameState>()
         .add_event::<ResetEvent>()
@@ -33,6 +34,7 @@ impl Plugin for MainPlugin {
 #[derive(Clone, Copy, Default, Eq, PartialEq, Debug, Hash, States)]
 pub enum GameState {
     #[default]
+    Loading,
     Menu,
     InGame,
     GameOver,

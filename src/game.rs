@@ -27,6 +27,8 @@ impl Plugin for GamePlugin {
 pub const ARENA_WIDTH: f32 = 800.0;
 pub const ARENA_HEIGHT: f32 = 600.0;
 
+const COLOR: Color = Color::WHITE;
+
 const PADDLE_SIZE: Vec2 = Vec2::new(10.0, 100.0);
 
 #[derive(Component)]
@@ -217,7 +219,7 @@ fn spawn_paddles(mut commands: Commands) {
         SpriteBundle {
             transform: Transform::from_xyz(player_position.x, player_position.y, 0.0),
             sprite: Sprite {
-                color: Color::WHITE,
+                color: COLOR,
                 custom_size: Some(PADDLE_SIZE),
                 ..default()
             },
@@ -234,7 +236,7 @@ fn spawn_paddles(mut commands: Commands) {
         SpriteBundle {
             transform: Transform::from_xyz(cpu_position.x, cpu_position.y, 0.0),
             sprite: Sprite {
-                color: Color::WHITE,
+                color: COLOR,
                 custom_size: Some(PADDLE_SIZE),
                 ..default()
             },
@@ -253,7 +255,7 @@ fn spawn_ball(mut commands: Commands) {
         SpriteBundle {
             transform: Transform::from_xyz(0.0, 0.0, 0.0),
             sprite: Sprite {
-                color: Color::WHITE,
+                color: COLOR,
                 custom_size: Some(Vec2::new(10.0, 10.0)),
                 ..default()
             },
@@ -272,7 +274,7 @@ fn spawn_walls(mut commands: Commands) {
         SpriteBundle {
             transform: Transform::from_xyz(0.0, ARENA_HEIGHT / 2., 0.0),
             sprite: Sprite {
-                color: Color::WHITE,
+                color: COLOR,
                 custom_size: Some(Vec2::new(ARENA_WIDTH, 10.0)),
                 ..default()
             },
@@ -285,7 +287,7 @@ fn spawn_walls(mut commands: Commands) {
         SpriteBundle {
             transform: Transform::from_xyz(0.0, -ARENA_HEIGHT / 2., 0.0),
             sprite: Sprite {
-                color: Color::WHITE,
+                color: COLOR,
                 custom_size: Some(Vec2::new(ARENA_WIDTH, 10.0)),
                 ..default()
             },
@@ -298,7 +300,7 @@ fn spawn_walls(mut commands: Commands) {
         SpriteBundle {
             transform: Transform::from_xyz(-ARENA_WIDTH / 2., 0.0, 0.0),
             sprite: Sprite {
-                color: Color::WHITE,
+                color: COLOR,
                 custom_size: Some(Vec2::new(10.0, ARENA_HEIGHT + 10.0)),
                 ..default()
             },
@@ -311,7 +313,7 @@ fn spawn_walls(mut commands: Commands) {
         SpriteBundle {
             transform: Transform::from_xyz(ARENA_WIDTH / 2., 0.0, 0.0),
             sprite: Sprite {
-                color: Color::WHITE,
+                color: COLOR,
                 custom_size: Some(Vec2::new(10.0, ARENA_HEIGHT + 10.0)),
                 ..default()
             },
