@@ -1,13 +1,16 @@
 use bevy::prelude::*;
 
-use crate::{game::ARENA_HEIGHT, GameState, ResetEvent, ScoreEvent};
+use crate::{game::ARENA_HEIGHT, GameState, ScoreEvent};
 
 pub struct ScorePlugin;
 
 impl Plugin for ScorePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(GameState::InGame), setup_score)
-            .add_systems(Update, handle_score_event);
+            .add_systems(
+                Update,
+                handle_score_event.run_if(in_state(GameState::InGame)),
+            );
     }
 }
 
@@ -40,7 +43,6 @@ pub struct Score {
 fn handle_score_event(
     mut score_query: Query<(&mut Score, &mut Text)>,
     mut score_events: EventReader<ScoreEvent>,
-    mut reset_events: EventWriter<ResetEvent>,
     mut state: ResMut<NextState<GameState>>,
 ) {
     for event in score_events.read() {
@@ -54,8 +56,6 @@ fn handle_score_event(
         text.sections[0].value = format!("{} {}", score.player, score.enemy);
         if score.player == MAX_SCORE || score.enemy == MAX_SCORE {
             state.0 = Some(GameState::GameOver);
-        } else {
-            reset_events.send(ResetEvent);
         }
     }
 }

@@ -10,13 +10,13 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, (spawn_paddles, spawn_ball, spawn_walls))
+            .add_systems(Update, handle_reset_event)
             .add_systems(
                 Update,
                 (
-                    handle_reset_event,
-                    (check_collisions, check_goals),
                     (move_player_paddle, move_cpu_paddle, move_ball),
                     clamp_paddles,
+                    (check_collisions, check_goals),
                 )
                     .chain()
                     .run_if(in_state(GameState::InGame)),
@@ -63,8 +63,7 @@ fn handle_reset_event(
     mut reset_events: EventReader<ResetEvent>,
     mut query: Query<(&mut Transform, &Resettable)>,
 ) {
-    for _ in reset_events.read() {
-        println!("Resetting game");
+    if let Some(_) = reset_events.read().next() {
         for (mut transform, resettable) in &mut query {
             transform.translation = Vec3::new(
                 resettable.initial_position.x,
@@ -127,6 +126,7 @@ fn check_goals(
     ball_query: Query<(&Transform, &Sprite), With<Ball>>,
     goal_query: Query<(&Transform, &Sprite, &Goal)>,
     mut score_events: EventWriter<ScoreEvent>,
+    mut reset_events: EventWriter<ResetEvent>,
 ) {
     for (ball_transform, ball_sprite) in &ball_query {
         for (goal_transform, goal_sprite, goal) in &goal_query {
@@ -141,6 +141,7 @@ fn check_goals(
                 score_events.send(ScoreEvent {
                     player: goal.player,
                 });
+                reset_events.send(ResetEvent);
             }
         }
     }
