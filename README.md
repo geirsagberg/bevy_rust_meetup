@@ -18,6 +18,7 @@ Make sure `~/.cargo/bin` is in your `PATH`, Then run:
 
 - [bevyengine.org](https://bevyengine.org/)
 - [Unofficial Bevy Cheat Book](https://bevy-cheatbook.github.io/)
+- [Rust Game Development with Bevy by TaintedCoders](https://taintedcoders.com/)
 - [Bevy Examples](https://bevyengine.org/examples/)
 - [Bevy Game Template](https://github.com/NiklasEi/bevy_game_template)
 - [Jumpy by Fishfolk, made with Bevy](https://fishfolk.org/games/jumpy/)

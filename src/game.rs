@@ -3,18 +3,18 @@ use bevy::{
     sprite::collide_aabb::{collide, Collision},
 };
 
-use crate::GameState;
+use crate::{GameState, ResetEvent, ScoreEvent};
 
 pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<ScoreEvent>()
-            .add_systems(Startup, (spawn_paddles, spawn_ball, spawn_walls))
+        app.add_systems(Startup, (spawn_paddles, spawn_ball, spawn_walls))
             .add_systems(
                 Update,
                 (
-                    check_collisions,
+                    handle_reset_event,
+                    (check_collisions, check_goals),
                     (move_player_paddle, move_cpu_paddle, move_ball),
                     clamp_paddles,
                 )
@@ -24,15 +24,10 @@ impl Plugin for GamePlugin {
     }
 }
 
-const ARENA_WIDTH: f32 = 800.0;
-const ARENA_HEIGHT: f32 = 600.0;
+pub const ARENA_WIDTH: f32 = 800.0;
+pub const ARENA_HEIGHT: f32 = 600.0;
 
 const PADDLE_SIZE: Vec2 = Vec2::new(10.0, 100.0);
-
-#[derive(Event)]
-pub struct ScoreEvent {
-    pub player: bool,
-}
 
 #[derive(Component)]
 pub struct Paddle;
@@ -50,12 +45,35 @@ pub struct Ball;
 pub struct Wall;
 
 #[derive(Component)]
-pub struct Goal;
+pub struct Goal {
+    pub player: bool,
+}
 
 #[derive(Component)]
 pub struct Velocity(pub Vec2);
 
+#[derive(Component)]
+pub struct Resettable {
+    pub initial_position: Vec2,
+}
+
 const PADDLE_SPEED: f32 = 5.0;
+
+fn handle_reset_event(
+    mut reset_events: EventReader<ResetEvent>,
+    mut query: Query<(&mut Transform, &Resettable)>,
+) {
+    for _ in reset_events.read() {
+        println!("Resetting game");
+        for (mut transform, resettable) in &mut query {
+            transform.translation = Vec3::new(
+                resettable.initial_position.x,
+                resettable.initial_position.y,
+                0.0,
+            );
+        }
+    }
+}
 
 fn move_player_paddle(
     keyboard_input: Res<Input<KeyCode>>,
@@ -102,6 +120,29 @@ fn move_ball(mut query: Query<(&mut Transform, &Velocity), With<Ball>>) {
     for (mut transform, velocity) in &mut query {
         transform.translation.x += velocity.0.x;
         transform.translation.y += velocity.0.y;
+    }
+}
+
+fn check_goals(
+    ball_query: Query<(&Transform, &Sprite), With<Ball>>,
+    goal_query: Query<(&Transform, &Sprite, &Goal)>,
+    mut score_events: EventWriter<ScoreEvent>,
+) {
+    for (ball_transform, ball_sprite) in &ball_query {
+        for (goal_transform, goal_sprite, goal) in &goal_query {
+            let collision = collide(
+                ball_transform.translation,
+                ball_sprite.custom_size.unwrap(),
+                goal_transform.translation,
+                goal_sprite.custom_size.unwrap(),
+            );
+
+            if collision.is_some() {
+                score_events.send(ScoreEvent {
+                    player: goal.player,
+                });
+            }
+        }
     }
 }
 
@@ -168,9 +209,12 @@ fn check_collisions(
 }
 
 fn spawn_paddles(mut commands: Commands) {
+    let player_position = Vec2::new(-ARENA_WIDTH / 2.0 + 20.0, 0.0);
+    let cpu_position = Vec2::new(ARENA_WIDTH / 2.0 - 20.0, 0.0);
+
     commands.spawn((
         SpriteBundle {
-            transform: Transform::from_xyz(-380.0, 0.0, 0.0),
+            transform: Transform::from_xyz(player_position.x, player_position.y, 0.0),
             sprite: Sprite {
                 color: Color::WHITE,
                 custom_size: Some(PADDLE_SIZE),
@@ -180,11 +224,14 @@ fn spawn_paddles(mut commands: Commands) {
         },
         Paddle,
         Player,
+        Resettable {
+            initial_position: player_position,
+        },
     ));
 
     commands.spawn((
         SpriteBundle {
-            transform: Transform::from_xyz(380.0, 0.0, 0.0),
+            transform: Transform::from_xyz(cpu_position.x, cpu_position.y, 0.0),
             sprite: Sprite {
                 color: Color::WHITE,
                 custom_size: Some(PADDLE_SIZE),
@@ -194,6 +241,9 @@ fn spawn_paddles(mut commands: Commands) {
         },
         Paddle,
         Cpu,
+        Resettable {
+            initial_position: cpu_position,
+        },
     ));
 }
 
@@ -210,6 +260,9 @@ fn spawn_ball(mut commands: Commands) {
         },
         Ball,
         Velocity(Vec2::new(5.0, 5.0)),
+        Resettable {
+            initial_position: Vec2::new(0.0, 0.0),
+        },
     ));
 }
 
@@ -242,27 +295,27 @@ fn spawn_walls(mut commands: Commands) {
 
     commands.spawn((
         SpriteBundle {
-            transform: Transform::from_xyz(-ARENA_WIDTH / 2. + 1., 0.0, 0.0),
+            transform: Transform::from_xyz(-ARENA_WIDTH / 2., 0.0, 0.0),
             sprite: Sprite {
                 color: Color::WHITE,
-                custom_size: Some(Vec2::new(1.0, ARENA_HEIGHT)),
+                custom_size: Some(Vec2::new(10.0, ARENA_HEIGHT + 10.0)),
                 ..default()
             },
             ..default()
         },
-        Goal,
+        Goal { player: false },
     ));
 
     commands.spawn((
         SpriteBundle {
-            transform: Transform::from_xyz(ARENA_WIDTH / 2. - 1., 0.0, 0.0),
+            transform: Transform::from_xyz(ARENA_WIDTH / 2., 0.0, 0.0),
             sprite: Sprite {
                 color: Color::WHITE,
-                custom_size: Some(Vec2::new(1.0, ARENA_HEIGHT)),
+                custom_size: Some(Vec2::new(10.0, ARENA_HEIGHT + 10.0)),
                 ..default()
             },
             ..default()
         },
-        Goal,
+        Goal { player: true },
     ));
 }
